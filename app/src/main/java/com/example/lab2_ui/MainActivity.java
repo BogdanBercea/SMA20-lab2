@@ -6,6 +6,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -17,11 +18,12 @@ import android.widget.Toast;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String SHARE_TAG = "SHARE";
     EditText eText;
 
     Button bClick;
     Button bShare;
-
+    Button bSearch;
     Spinner spinner;
 
     @Override
@@ -32,6 +34,7 @@ public class MainActivity extends AppCompatActivity {
         eText = (EditText) findViewById(R.id.eName);
         bClick = (Button) findViewById(R.id.bClick);
         bShare = (Button) findViewById(R.id.bShare);
+        bSearch = (Button) findViewById(R.id.bSearch);
         spinner = (Spinner) findViewById(R.id.color_spinner);
 
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
@@ -67,14 +70,42 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 String text = eText.getText().toString();
-                Intent intent = new Intent(Intent.ACTION_SENDTO);
-                intent.putExtra(Intent.EXTRA_TEXT, text);
 
-                Intent chooser = Intent.createChooser(intent, text);
-
-                if(intent.resolveActivity(getPackageManager()) != null){
-                    startActivity(chooser);
+                if(text.equals("")){
+                    Toast.makeText(MainActivity.this, "Input field is empty", Toast.LENGTH_LONG).show();
                 }
+                else{
+                    Intent intent = new Intent(Intent.ACTION_SEND);
+                    intent.setAction(Intent.ACTION_SEND);
+                    intent.putExtra(SHARE_TAG, text);
+                    intent.setType("text/plain");
+
+                    Intent chooser = Intent.createChooser(intent, "SHARE");
+
+                    if(intent.resolveActivity(getPackageManager()) != null){
+                        startActivity(chooser);
+                    }
+                    else{
+                        Toast.makeText(MainActivity.this, "No Apps", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            }
+        });
+
+        bSearch.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String text = eText.getText().toString();
+
+                if(text.equals("")){
+                    Toast.makeText(MainActivity.this, "Input field is empty", Toast.LENGTH_LONG).show();
+                }
+                else{
+                    Uri uri = Uri.parse("http://www.google.com/search?q=" + text);
+                    Intent intent = new Intent(Intent.ACTION_VIEW, uri);
+                    startActivity(intent);
+                }
+
             }
         });
 
